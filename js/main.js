@@ -165,9 +165,8 @@ function filtrarYRenderizar() {
   var q = input ? input.value.trim().toLowerCase() : "";
   if (!q) { renderizarProductos(catalogoCompleto); return; }
   var filtrado = catalogoCompleto.filter(function(p) {
-    return (p.nombre && p.nombre.toLowerCase().indexOf(q) !== -1) ||
-           (p.tipo   && p.tipo.toLowerCase().indexOf(q)   !== -1) ||
-           (p.genetica && p.genetica.toLowerCase().indexOf(q) !== -1);
+    return (p.nombre     && p.nombre.toLowerCase().indexOf(q)     !== -1) ||
+           (p.categoria  && p.categoria.toLowerCase().indexOf(q)  !== -1);
   });
   renderizarProductos(filtrado);
 }
@@ -249,9 +248,67 @@ function abrirPopup(producto) {
     });
     document.getElementById("popup-sabores").style.display = "block";
 
-  } else {
+  } else if (producto.tipo === "thc") {
     renderizarPasoGenetica(1);
     document.getElementById("popup-geneticas").style.display = "block";
+
+  } else {
+    /* ── Retail (Indumentaria, Perfumería, Accesorios) ──
+       Muestra talles y/o colores si existen, o agrega directo. */
+    var tieneOpciones = false;
+
+    if (producto.talles && producto.talles.trim()) {
+      var tallesArr = producto.talles.split(",").map(function(t) { return t.trim(); }).filter(Boolean);
+      if (tallesArr.length) {
+        tieneOpciones = true;
+        var containerTalles = document.getElementById("popup-opciones-sabores");
+        containerTalles.innerHTML = "";
+
+        var labelT = document.createElement("p");
+        labelT.className = "popup__label";
+        labelT.textContent = "Elegí tu talle:";
+        document.getElementById("popup-sabores").querySelector(".popup__label") && void 0;
+        document.getElementById("popup-sabores").insertBefore(labelT, containerTalles);
+
+        tallesArr.forEach(function(t) {
+          var btn = document.createElement("button");
+          btn.className = "opcion-btn";
+          btn.textContent = t;
+          btn.addEventListener("click", function() {
+            containerTalles.querySelectorAll(".opcion-btn").forEach(function(b) { b.classList.remove("activo"); });
+            btn.classList.add("activo");
+            seleccionActual = t;
+            document.getElementById("popup-seleccion-actual").textContent = "Talle: " + t;
+          });
+          containerTalles.appendChild(btn);
+        });
+        document.getElementById("popup-sabores").style.display = "block";
+      }
+    }
+
+    if (!tieneOpciones && producto.colores && producto.colores.trim()) {
+      var coloresArr = producto.colores.split(",").map(function(c) { return c.trim(); }).filter(Boolean);
+      if (coloresArr.length) {
+        tieneOpciones = true;
+        var containerColores = document.getElementById("popup-opciones-sabores");
+        containerColores.innerHTML = "";
+        coloresArr.forEach(function(c) {
+          var btn = document.createElement("button");
+          btn.className = "opcion-btn";
+          btn.textContent = c;
+          btn.addEventListener("click", function() {
+            containerColores.querySelectorAll(".opcion-btn").forEach(function(b) { b.classList.remove("activo"); });
+            btn.classList.add("activo");
+            seleccionActual = c;
+            document.getElementById("popup-seleccion-actual").textContent = "Color: " + c;
+          });
+          containerColores.appendChild(btn);
+        });
+        document.getElementById("popup-sabores").style.display = "block";
+      }
+    }
+
+    /* Sin talles ni colores: se puede agregar directo */
   }
 
   document.getElementById("popup-overlay").classList.add("activo");
@@ -481,9 +538,6 @@ function enviarPedido() {
    INIT
    ===================== */
 document.addEventListener("DOMContentLoaded", function() {
-  var selVariedad = document.getElementById("adm-genetica");
-  if (selVariedad) { selVariedad.value = ""; selVariedad.selectedIndex = 0; }
-
 
   /* ── Cargar productos desde Google Sheets (única fuente) ── */
   (function() {
@@ -521,12 +575,17 @@ document.addEventListener("DOMContentLoaded", function() {
         var datos = rows.map(function(r, idx) {
           var num = parseFloat(String(r.precio_base || "").replace(/[^0-9.]/g, "")) || 0;
           return {
-            id:        idx + 1,
-            nombre:    r.nombre || "",
-            precio:    "$" + Math.round(num).toLocaleString("es-AR"),
-            precioNum: Math.round(num),
-            imgSrc:    r.imagen || "",
-            tipo:      (r.tipo && r.tipo.trim()) ? r.tipo.trim() : "thc"
+            id:          idx + 1,
+            nombre:      r.producto || "",
+            precio:      "$" + Math.round(num).toLocaleString("es-AR"),
+            precioNum:   Math.round(num),
+            imgSrc:      r.imagen_url || "",
+            tipo:        (r.categoria && r.categoria.trim()) ? r.categoria.trim().toLowerCase() : "retail",
+            categoria:   r.categoria || "",
+            talles:      r.talles    || "",
+            colores:     r.colores   || "",
+            stock:       parseInt(r.stock || "0", 10),
+            descripcion: r.descripcion || ""
           };
         });
         catalogoCompleto = datos;
@@ -601,10 +660,18 @@ document.addEventListener("DOMContentLoaded", function() {
       return;
     }
 
-    /* ── Fallback: producto sin tipo especial ── */
-    agregarItem(productoActual.nombre, productoActual.precio, productoActual.precioNum, "");
+    /* ── Retail (Indumentaria, Perfumería, Accesorios) ── */
+    var tieneOpcionesRetail = (productoActual.talles && productoActual.talles.trim()) ||
+                              (productoActual.colores && productoActual.colores.trim());
+    if (tieneOpcionesRetail && !seleccionActual) {
+      alert("Por favor elegí una opción antes de agregar.");
+      return;
+    }
+    agregarItem(productoActual.nombre, productoActual.precio, productoActual.precioNum, seleccionActual || "");
+    var nombreRetail = productoActual.nombre + (seleccionActual ? " — " + seleccionActual : "");
     cerrarPopup();
-    mostrarToast("<strong>" + productoActual.nombre + "</strong> agregado");
+    mostrarToast("<strong>" + nombreRetail + "</strong> agregado");
+    return;
   });
 
   /* ── Carrito ── */
@@ -738,8 +805,7 @@ document.addEventListener("DOMContentLoaded", function() {
    ADMIN PANEL
    ===================== */
 var SHEETDB_URL   = "TU_URL_SHEETDB";
-var ADMIN_PASS    = "CAMBIAR_ESTA_PASSWORD";
-var MARCAS_OK     = ["VIVA LA HEMP","UNIVERSITY","TORCH","SLUGGERS","PULSE","PHENOM","ELF","AIRIS","PACKMAN","MUHAMEDS","JUNGLE BOYS","HALF BAKED","GHOST","DOZO","BIG CHIEF","BOUTIQUE"];
+var ADMIN_PASS    = "buenacruz!";
 var IMG_BASE      = "https://tu-proyecto.vercel.app/";
 
 function adminMostrarError(msg, txt) {
@@ -788,7 +854,6 @@ function abrirAdmin() {
   document.body.classList.add("popup-abierto");
   document.getElementById("admin-msg").style.display = "none";
   document.getElementById("admin-msg").textContent = "";
-  var sg = document.getElementById("adm-genetica"); if(sg){sg.selectedIndex=0;sg.value="";}
 }
 
 function cerrarAdmin() {
@@ -799,25 +864,20 @@ function cerrarAdmin() {
 }
 
 function adminAgregarProducto() {
-  var nombre   = document.getElementById("adm-nombre").value.trim();
-  var precio   = document.getElementById("adm-precio").value.trim();
-  var tipo     = document.getElementById("adm-tipo").value;
-  var selGenetica   = document.getElementById("adm-genetica");
-  var variedad      = (selGenetica.value && selGenetica.value.trim() !== "") ? selGenetica.value.trim() : "";
-  var geneticaInput = document.getElementById("adm-geneticas").value.trim();
-  var genetica      = variedad ? variedad + (geneticaInput ? " — " + geneticaInput : "") : (geneticaInput || "");
-  console.log("[ADMIN DEBUG] 1.select.value='" + selGenetica.value + "' | 2.variedad='" + variedad + "' | 3.geneticaInput='" + geneticaInput + "' | 4.payload geneticas='" + genetica + "'");
-  var btn      = document.getElementById("admin-form-submit");
-  var msg      = document.getElementById("admin-msg");
-  var file     = document.getElementById("adm-imagen").files[0];
+  var nombre      = document.getElementById("adm-nombre").value.trim();
+  var precio      = document.getElementById("adm-precio").value.trim();
+  var categoria   = document.getElementById("adm-categoria").value;
+  var talles      = document.getElementById("adm-talles") ? document.getElementById("adm-talles").value.trim() : "";
+  var colores     = document.getElementById("adm-colores") ? document.getElementById("adm-colores").value.trim() : "";
+  var stock       = document.getElementById("adm-stock") ? document.getElementById("adm-stock").value.trim() : "";
+  var descripcion = document.getElementById("adm-descripcion") ? document.getElementById("adm-descripcion").value.trim() : "";
+  var btn         = document.getElementById("admin-form-submit");
+  var msg         = document.getElementById("admin-msg");
+  var file        = document.getElementById("adm-imagen").files[0];
 
   msg.style.display = "none";
 
   if (!nombre) { adminMostrarError(msg, "⚠ El nombre es obligatorio."); return; }
-
-  var nombreUp = nombre.toUpperCase();
-  var marcaValida = MARCAS_OK.some(function(m) { return nombreUp.indexOf(m.toUpperCase()) !== -1; });
-  if (!marcaValida) { adminMostrarError(msg, "✕ Marca no permitida. Usá una de las marcas autorizadas."); return; }
 
   var precioNum = parseFloat(String(precio).replace(/[^0-9.]/g, ""));
   if (!precio || isNaN(precioNum) || precioNum <= 0) { adminMostrarError(msg, "⚠ Precio inválido. Ingresá un número mayor a 0."); return; }
@@ -845,11 +905,14 @@ function adminAgregarProducto() {
       },
       body: JSON.stringify({
         data: [{
-          producto: String(nombre || ""),
+          producto:    String(nombre || ""),
           precio_base: String(precioNum || ""),
-          categoria: String(tipo || ""),
-          geneticas: String(genetica || ""),
-          imagen_url: String(imageUrl || "")
+          categoria:   String(categoria || ""),
+          talles:      String(talles || ""),
+          colores:     String(colores || ""),
+          stock:       String(stock || "0"),
+          descripcion: String(descripcion || ""),
+          imagen_url:  String(imageUrl || "")
         }]
       })
     });
@@ -859,8 +922,10 @@ function adminAgregarProducto() {
     adminMostrarOk(msg, "✓ Producto agregado correctamente");
     document.getElementById("adm-nombre").value = "";
     document.getElementById("adm-precio").value = "";
-    document.getElementById("adm-genetica").value = "";
-    document.getElementById("adm-geneticas").value = "";
+    if (document.getElementById("adm-talles"))      document.getElementById("adm-talles").value = "";
+    if (document.getElementById("adm-colores"))     document.getElementById("adm-colores").value = "";
+    if (document.getElementById("adm-stock"))       document.getElementById("adm-stock").value = "";
+    if (document.getElementById("adm-descripcion")) document.getElementById("adm-descripcion").value = "";
     document.getElementById("adm-imagen").value = "";
     btn.textContent = "Agregar producto";
     btn.disabled = false;

@@ -190,31 +190,35 @@
         </div>
         <div class="form-group">
           <label>Precio (número)</label>
-          <input type="number" id="adm-precio" placeholder="Ej: 72500" />
+          <input type="number" id="adm-precio" placeholder="Ej: 12500" />
         </div>
         <div class="form-group">
           <label>Imagen</label>
           <input type="file" id="adm-imagen" accept="image/*" />
         </div>
         <div class="form-group">
-          <label>Tipo</label>
-          <select id="adm-tipo" autocomplete="off" style="background:var(--color-surface,#1a1a1a);color:var(--color-text,#fff);border:1px solid var(--color-border,#333);padding:0.6rem 0.8rem;border-radius:6px;font-size:0.9rem;width:100%;">
-            <option value="thc">THC</option>
-            <option value="nicotina">Nicotina</option>
+          <label>Categoría</label>
+          <select id="adm-categoria" autocomplete="off" style="background:var(--color-surface,#1a1a1a);color:var(--color-text,#fff);border:1px solid var(--color-border,#333);padding:0.6rem 0.8rem;border-radius:6px;font-size:0.9rem;width:100%;">
+            <option value="Indumentaria">Indumentaria</option>
+            <option value="Perfumería">Perfumería</option>
+            <option value="Accesorios">Accesorios</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Variedad</label>
-          <select id="adm-genetica" autocomplete="off" style="background:var(--color-surface,#1a1a1a);color:var(--color-text,#fff);border:1px solid var(--color-border,#333);padding:0.6rem 0.8rem;border-radius:6px;font-size:0.9rem;width:100%;">
-            <option value="" selected>None</option>
-            <option value="Índica">Índica</option>
-            <option value="Sativa">Sativa</option>
-            <option value="Híbrida">Híbrida</option>
-          </select>
+          <label>Talles <span style="font-weight:400;text-transform:none;font-size:0.8em;">(ej: S,M,L,XL)</span></label>
+          <input type="text" id="adm-talles" placeholder="S,M,L,XL" />
         </div>
         <div class="form-group">
-          <label>Genética</label>
-          <input type="text" id="adm-geneticas" placeholder="Opcional" />
+          <label>Colores <span style="font-weight:400;text-transform:none;font-size:0.8em;">(ej: Negro,Rosa,Blanco)</span></label>
+          <input type="text" id="adm-colores" placeholder="Negro,Rosa,Blanco" />
+        </div>
+        <div class="form-group">
+          <label>Stock</label>
+          <input type="number" id="adm-stock" placeholder="0" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <input type="text" id="adm-descripcion" placeholder="Descripción breve (opcional)" />
         </div>
         <button class="btn-primary" id="admin-form-submit">Agregar producto</button>
         <p id="admin-msg" style="display:none;font-size:0.85rem;text-align:center;margin-top:0.25rem;"></p>

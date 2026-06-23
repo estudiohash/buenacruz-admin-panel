@@ -427,8 +427,7 @@
 
     <div class="form-group">
       <label>Nombre del producto</label>
-      <input type="text" id="adm-nombre" placeholder="Ej: BIG CHIEF DUO 2G" autocomplete="off" />
-      <span class="hint">Marcas válidas: BIG CHIEF · BOUTIQUE · DOZO · ELF · GHOST · HALF BAKED · JUNGLE BOYS · MUHAMEDS · PACKMAN · PHENOM · PULSE · AIRIS · SLUGGERS · TORCH · UNIVERSITY · VIVA LA HEMP</span>
+      <input type="text" id="adm-nombre" placeholder="Ej: Remera oversize negra" autocomplete="off" />
     </div>
 
     <div class="form-group">
@@ -454,27 +453,33 @@
     </div>
 
     <div class="form-group">
-      <label>Tipo</label>
+      <label>Categoría</label>
       <select id="adm-tipo">
-        <option value="thc">THC</option>
-        <option value="nicotina">Nicotina</option>
+        <option value="Indumentaria">Indumentaria</option>
+        <option value="Perfumería">Perfumería</option>
+        <option value="Accesorios">Accesorios</option>
       </select>
     </div>
 
- <div class="form-group">
-  <label>Variedad</label>
-  <select id="adm-genetica">
-    <option value="" selected>None</option>
-    <option value="Indica">Índica</option>
-    <option value="Sativa">Sativa</option>
-    <option value="Hibrida">Híbrida</option>
-  </select>
-</div>
+    <div class="form-group">
+      <label>Talles <span style="font-weight:400;text-transform:none;font-size:0.85em;">(ej: S,M,L,XL)</span></label>
+      <input type="text" id="adm-geneticas" placeholder="S,M,L,XL — dejar vacío si no aplica" />
+    </div>
 
-<div class="form-group">
-  <label>Genéticas</label>
-  <input type="text" id="adm-geneticas" placeholder="Opcional" />
-</div>
+    <div class="form-group">
+      <label>Colores <span style="font-weight:400;text-transform:none;font-size:0.85em;">(ej: Negro,Rosa,Blanco)</span></label>
+      <input type="text" id="adm-colores" placeholder="Negro,Rosa,Blanco — dejar vacío si no aplica" />
+    </div>
+
+    <div class="form-group">
+      <label>Stock</label>
+      <input type="number" id="adm-stock" placeholder="0" min="0" inputmode="numeric" />
+    </div>
+
+    <div class="form-group">
+      <label>Descripción</label>
+      <input type="text" id="adm-descripcion" placeholder="Descripción breve (opcional)" />
+    </div>
 
 <hr class="divider" />
 
@@ -486,13 +491,8 @@
     /* ══════════════════════════════════════
        CONFIG
     ══════════════════════════════════════ */
-    var ADMIN_PASS = "CAMBIAR_ESTA_PASSWORD";
+    var ADMIN_PASS = "buenacruz!";
     var SHEETDB_URL = "TU_URL_SHEETDB";
-    var MARCAS_OK = [
-      "BIG CHIEF","BOUTIQUE","DOZO","ELF","GHOST","HALF BAKED",
-      "JUNGLE BOYS","MUHAMEDS","PACKMAN","PHENOM","PULSE","AIRIS",
-      "SLUGGERS","TORCH","UNIVERSITY","VIVA LA HEMP"
-    ];
 
     /* ══════════════════════════════════════
        LOGIN
@@ -555,8 +555,10 @@
     function resetForm(btn) {
       document.getElementById("adm-nombre").value = "";
       document.getElementById("adm-precio").value = "";
-      document.getElementById("adm-genetica").value = "";
       document.getElementById("adm-geneticas").value = "";
+      var colEl = document.getElementById("adm-colores");   if (colEl)  colEl.value  = "";
+      var stoEl = document.getElementById("adm-stock");     if (stoEl)  stoEl.value  = "";
+      var desEl = document.getElementById("adm-descripcion"); if (desEl) desEl.value = "";
       document.getElementById("adm-imagen-file").value = "";
       document.getElementById("file-label-txt").textContent = "Seleccionar imagen desde el dispositivo";
       document.getElementById("img-preview-wrap").style.display = "none";
@@ -567,23 +569,20 @@
       productoEditando = null;
       document.getElementById("form-titulo").textContent = "Agregar Producto";
       document.getElementById("modo-edicion-banner").classList.add("oculto");
-      document.getElementById("adm-tipo").value = "thc";
+      document.getElementById("adm-tipo").value = "Indumentaria";
       document.querySelectorAll(".prod-item").forEach(function(el) { el.classList.remove("seleccionado"); });
     }
 
     function cargarEnForm(prod) {
       modoEdicion = true;
       productoEditando = prod;
-      document.getElementById("adm-nombre").value = prod.producto || "";
-      document.getElementById("adm-precio").value = prod.precio_base || "";
-      document.getElementById("adm-tipo").value = (prod.categoria || "thc").toLowerCase();
-      var variedadesValidas = ["Indica","Sativa","Hibrida"];
-      var geneticasRaw = prod.geneticas || "";
-      var partes = geneticasRaw.split(" — ");
-      var variedadMatch = variedadesValidas.indexOf(partes[0].trim()) !== -1 ? partes[0].trim() : "";
-      var geneticaTexto = variedadMatch ? partes.slice(1).join(" — ").trim() : geneticasRaw;
-      document.getElementById("adm-genetica").value = variedadMatch;
-      document.getElementById("adm-geneticas").value = geneticaTexto;
+      document.getElementById("adm-nombre").value  = prod.producto   || "";
+      document.getElementById("adm-precio").value  = prod.precio_base || "";
+      document.getElementById("adm-tipo").value    = prod.categoria   || "Indumentaria";
+      document.getElementById("adm-geneticas").value = prod.talles   || "";
+      var colEl = document.getElementById("adm-colores");    if (colEl)  colEl.value  = prod.colores    || "";
+      var stoEl = document.getElementById("adm-stock");      if (stoEl)  stoEl.value  = prod.stock      || "";
+      var desEl = document.getElementById("adm-descripcion"); if (desEl) desEl.value  = prod.descripcion || "";
       document.getElementById("adm-imagen-file").value = "";
       document.getElementById("file-label-txt").textContent = "Opcional: cambiar imagen";
       document.getElementById("img-preview-wrap").style.display = prod.imagen_url ? "block" : "none";
@@ -608,24 +607,23 @@
       btn.disabled = true;
       btn.textContent = "Validando...";
 
-      var nombre   = document.getElementById("adm-nombre").value.trim();
-      var precio   = document.getElementById("adm-precio").value.trim();
-      var tipo     = document.getElementById("adm-tipo").value;
-      var selGenetica   = document.getElementById("adm-genetica");
-      var variedad      = (selGenetica.value && selGenetica.value.trim() !== "") ? selGenetica.value.trim() : "";
-      var geneticaInput = document.getElementById("adm-geneticas").value.trim();
-      var genetica      = variedad ? variedad + (geneticaInput ? " \u2014 " + geneticaInput : "") : (geneticaInput || "");
-      var imagen   = document.getElementById("adm-imagen-file").files[0];
+      var nombre      = document.getElementById("adm-nombre").value.trim();
+      var precio      = document.getElementById("adm-precio").value.trim();
+      var tipo        = document.getElementById("adm-tipo").value;
+      var talles      = document.getElementById("adm-geneticas").value.trim();
+      var coloresEl   = document.getElementById("adm-colores");
+      var colores     = coloresEl ? coloresEl.value.trim() : "";
+      var stockEl     = document.getElementById("adm-stock");
+      var stock       = stockEl ? stockEl.value.trim() : "0";
+      var descripEl   = document.getElementById("adm-descripcion");
+      var descripcion = descripEl ? descripEl.value.trim() : "";
+      var imagen      = document.getElementById("adm-imagen-file").files[0];
 
       document.getElementById("adm-msg").style.display = "none";
 
       function failValidation(msg) { showMsg(msg, false); btn.textContent = modoEdicion ? "Guardar cambios" : "Agregar producto"; btn.disabled = false; }
 
       if (!nombre) { failValidation("⚠ El nombre es obligatorio."); return; }
-      var marcaOk = MARCAS_OK.some(function(m) {
-        return nombre.toUpperCase().indexOf(m) !== -1;
-      });
-      if (!marcaOk) { failValidation("✕ Marca no autorizada."); return; }
       var precioNum = parseFloat(String(precio).replace(/[^0-9.]/g, ""));
       if (!precio || isNaN(precioNum) || precioNum <= 0) {
         failValidation("⚠ Precio inválido. Ingresá un número mayor a 0."); return;
@@ -640,7 +638,10 @@
           producto:    String(nombre),
           precio_base: String(Math.round(precioNum)),
           categoria:   String(tipo),
-          geneticas:   String(genetica || ""),
+          talles:      String(talles || ""),
+          colores:     String(colores || ""),
+          stock:       String(stock || "0"),
+          descripcion: String(descripcion || ""),
           imagen_url:  String(imageUrl || "")
         };
         btn.textContent = "Guardando...";
@@ -743,7 +744,10 @@
           (prod.imagen_url ? "<img class=\"prod-item__img\" src=\"" + prod.imagen_url + "\" alt=\"\"/>" : "<div class=\"prod-item__img\"></div>") +
           "<div class=\"prod-item__info\">" +
             "<div class=\"prod-item__nombre\">" + (prod.producto || "") + "</div>" +
-            "<div class=\"prod-item__meta\">" + (prod.categoria || "") + (prod.geneticas ? " · " + prod.geneticas : "") + "</div>" +
+            "<div class=\"prod-item__meta\">" + (prod.categoria || "") +
+              (prod.talles  ? " · Talles: " + prod.talles   : "") +
+              (prod.colores ? " · Colores: " + prod.colores : "") +
+            "</div>" +
           "</div>" +
           "<div class=\"prod-item__precio\">" + precioFmt + "</div>";
         item.addEventListener("click", function() {
@@ -759,9 +763,10 @@
       var q = this.value.trim().toLowerCase();
       if (!q) { renderListado(todosLosProductos); return; }
       var filtrado = todosLosProductos.filter(function(p) {
-        return (p.producto    && p.producto.toLowerCase().indexOf(q)    !== -1) ||
-               (p.categoria   && p.categoria.toLowerCase().indexOf(q)   !== -1) ||
-               (p.geneticas   && p.geneticas.toLowerCase().indexOf(q)   !== -1);
+        return (p.producto  && p.producto.toLowerCase().indexOf(q)  !== -1) ||
+               (p.categoria && p.categoria.toLowerCase().indexOf(q) !== -1) ||
+               (p.talles    && p.talles.toLowerCase().indexOf(q)    !== -1) ||
+               (p.colores   && p.colores.toLowerCase().indexOf(q)   !== -1);
       });
       renderListado(filtrado);
     });
