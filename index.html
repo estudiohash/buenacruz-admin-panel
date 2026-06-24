@@ -651,7 +651,6 @@
           rowData._target = productoEditando.producto;
           return fetch(SHEETDB_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(rowData)
           })
           .then(function(r) { return r.json(); })
@@ -669,7 +668,6 @@
         } else {
           return fetch(SHEETDB_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(rowData)
           })
           .then(function(r) { return r.json(); })
@@ -691,7 +689,7 @@
         var formData = new FormData();
         formData.append("file", imagen);
         formData.append("upload_preset", "buena-cruz");
-        fetch("https://api.cloudinary.com/v1_1/daylvhqjg/image/upload", {
+        fetch("https://api.cloudinary.com/v1_1/daylvhqig/image/upload", {
           method: "POST",
           body: formData
         })
@@ -799,7 +797,6 @@
       btnElim.disabled = true;
       fetch(SHEETDB_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ _method: "DELETE", _target: productoEditando.producto })
       })
         .then(function(r) { return r.json(); })
