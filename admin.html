@@ -690,8 +690,8 @@
       if (imagen) {
         var formData = new FormData();
         formData.append("file", imagen);
-        formData.append("upload_preset", "buenacruz");
-        fetch("https://api.cloudinary.com/v1_1/daylvhqig/image/upload", {
+        formData.append("upload_preset", "tu_upload_preset");
+        fetch("https://api.cloudinary.com/v1_1/TU_CLOUD_NAME/image/upload", {
           method: "POST",
           body: formData
         })
