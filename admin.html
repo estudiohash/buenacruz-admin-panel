@@ -690,14 +690,13 @@
       if (imagen) {
         var formData = new FormData();
         formData.append("file", imagen);
-        formData.append("upload_preset", "buena-cruz");
-        fetch("https://api.cloudinary.com/v1_1/daylvhqjg/image/upload", {
+        formData.append("upload_preset", "tu_upload_preset");
+        fetch("https://api.cloudinary.com/v1_1/TU_CLOUD_NAME/image/upload", {
           method: "POST",
           body: formData
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
-        console.log("Cloudinary response:", JSON.stringify(data));
           if (!data || !data.secure_url) {
             showMsg("\u2715 Error al subir imagen.", false);
             btn.textContent = modoEdicion ? "Guardar cambios" : "Agregar producto"; btn.disabled = false;

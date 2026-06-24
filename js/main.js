@@ -889,9 +889,9 @@ function adminAgregarProducto() {
 
   var formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "tu_upload_preset");
+  formData.append("upload_preset", "buena-cruz");
 
-  fetch("https://api.cloudinary.com/v1_1/TU_CLOUD_NAME/image/upload", {
+  fetch("https://api.cloudinary.com/v1_1/daylvhqjg/image/upload", {
     method: "POST",
     body: formData
   })
