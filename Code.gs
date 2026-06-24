@@ -1,17 +1,12 @@
 /* =====================================================
    BUENACRUZ — Google Apps Script Backend
-   Reemplaza SheetDB. Pegá este código en:
-   Extensions → Apps Script → Código.gs
-   Luego: Implementar → Nueva implementación → Aplicación web
-     - Ejecutar como: Yo
-     - Quién tiene acceso: Cualquier persona
-   Copiá la URL /exec y pegala en main.js y admin.html
    ===================================================== */
 
+var SHEET_ID   = "1L1LhAPObeep6SryPlYcNfHu-xsFRRZLb";
 var SHEET_NAME = "Productos";
 
 function getSheet() {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  return SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
 }
 
 function getHeaders(sheet) {
@@ -46,8 +41,7 @@ function err(msg) {
 /* ─── GET: listar todos los productos ─── */
 function doGet(e) {
   try {
-    var rows = getAllRows();
-    return ok(rows);
+    return ok(getAllRows());
   } catch(ex) {
     return err(ex.message);
   }
@@ -56,13 +50,11 @@ function doGet(e) {
 /* ─── POST / PATCH / DELETE via _method en el body ─── */
 function doPost(e) {
   try {
-    var body = JSON.parse(e.postData.contents);
+    var body   = JSON.parse(e.postData.contents);
     var method = (body._method || "POST").toUpperCase();
-
     if (method === "POST")   return handlePost(body);
     if (method === "PATCH")  return handlePatch(body);
     if (method === "DELETE") return handleDelete(body);
-
     return err("Método no soportado: " + method);
   } catch(ex) {
     return err(ex.message);
@@ -71,31 +63,26 @@ function doPost(e) {
 
 /* ─── Agregar producto ─── */
 function handlePost(body) {
-  var sheet = getSheet();
+  var sheet   = getSheet();
   var headers = getHeaders(sheet);
-  var row = headers.map(function(h) { return body[h] !== undefined ? body[h] : ""; });
+  var row     = headers.map(function(h) { return body[h] !== undefined ? body[h] : ""; });
   sheet.appendRow(row);
   return ok({ created: 1 });
 }
 
-/* ─── Editar producto (busca por nombre original _target) ─── */
+/* ─── Editar producto ─── */
 function handlePatch(body) {
   var sheet   = getSheet();
   var headers = getHeaders(sheet);
   var lastRow = sheet.getLastRow();
   var prodIdx = headers.indexOf("producto");
   if (prodIdx === -1) return err("Columna 'producto' no encontrada");
-
-  var target  = body._target;
   var updated = 0;
-
   for (var i = 2; i <= lastRow; i++) {
     var cell = sheet.getRange(i, prodIdx + 1).getValue();
-    if (String(cell).trim() === String(target).trim()) {
+    if (String(cell).trim() === String(body._target).trim()) {
       headers.forEach(function(h, idx) {
-        if (body[h] !== undefined) {
-          sheet.getRange(i, idx + 1).setValue(body[h]);
-        }
+        if (body[h] !== undefined) sheet.getRange(i, idx + 1).setValue(body[h]);
       });
       updated++;
       break;
@@ -104,20 +91,17 @@ function handlePatch(body) {
   return ok({ updated: updated });
 }
 
-/* ─── Eliminar producto (busca por nombre _target) ─── */
+/* ─── Eliminar producto ─── */
 function handleDelete(body) {
   var sheet   = getSheet();
   var headers = getHeaders(sheet);
   var lastRow = sheet.getLastRow();
   var prodIdx = headers.indexOf("producto");
   if (prodIdx === -1) return err("Columna 'producto' no encontrada");
-
-  var target  = body._target;
   var deleted = 0;
-
   for (var i = lastRow; i >= 2; i--) {
     var cell = sheet.getRange(i, prodIdx + 1).getValue();
-    if (String(cell).trim() === String(target).trim()) {
+    if (String(cell).trim() === String(body._target).trim()) {
       sheet.deleteRow(i);
       deleted++;
       break;

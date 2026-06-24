@@ -492,7 +492,7 @@
        CONFIG
     ══════════════════════════════════════ */
     var ADMIN_PASS = "buenacruz!";
-    var SHEETDB_URL = "TU_URL_SHEETDB";
+    var SHEETDB_URL = "https://script.google.com/macros/s/AKfycbxdXyhmfJkrj8z4kl4h2F1po7bPQsiEC6u7FhKui39BNJLwLteu1P5kJEj4y6E_IgQg/exec";
 
     /* ══════════════════════════════════════
        LOGIN
@@ -647,11 +647,12 @@
         btn.textContent = "Guardando...";
 
         if (modoEdicion && productoEditando) {
-          var productoOriginal = encodeURIComponent(productoEditando.producto);
-          return fetch(SHEETDB_URL + "/producto/" + productoOriginal, {
-            method: "PATCH",
+          rowData._method = "PATCH";
+          rowData._target = productoEditando.producto;
+          return fetch(SHEETDB_URL, {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: rowData })
+            body: JSON.stringify(rowData)
           })
           .then(function(r) { return r.json(); })
           .then(function(resp) {
@@ -661,7 +662,7 @@
               setTimeout(function() { resetForm(btn); }, 1500);
             } else {
               var errMsg = resp && resp.error ? resp.error : JSON.stringify(resp);
-              showMsg("\u2715 SheetDB: " + errMsg, false);
+              showMsg("\u2715 Error: " + errMsg, false);
               btn.textContent = "Guardar cambios"; btn.disabled = false;
             }
           });
@@ -669,7 +670,7 @@
           return fetch(SHEETDB_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: [rowData] })
+            body: JSON.stringify(rowData)
           })
           .then(function(r) { return r.json(); })
           .then(function(resp) {
@@ -679,7 +680,7 @@
               setTimeout(function() { resetForm(btn); }, 1500);
             } else {
               var errMsg = resp && resp.error ? resp.error : JSON.stringify(resp);
-              showMsg("\u2715 SheetDB: " + errMsg, false);
+              showMsg("\u2715 Error: " + errMsg, false);
               btn.textContent = "Agregar producto"; btn.disabled = false;
             }
           });
@@ -795,8 +796,11 @@
       btn.disabled = true;
       btn.textContent = "Eliminando...";
       btnElim.disabled = true;
-      var nombreEnc = encodeURIComponent(productoEditando.producto);
-      fetch(SHEETDB_URL + "/producto/" + nombreEnc, { method: "DELETE" })
+      fetch(SHEETDB_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ _method: "DELETE", _target: productoEditando.producto })
+      })
         .then(function(r) { return r.json(); })
         .then(function(resp) {
           document.getElementById("confirmar-eliminar-wrap").classList.remove("visible");

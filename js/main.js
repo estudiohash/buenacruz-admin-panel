@@ -541,7 +541,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   /* ── Cargar productos desde Google Sheets (única fuente) ── */
   (function() {
-    var CSV_URL = "TU_URL_CSV_GOOGLE_SHEETS";
+    var CSV_URL = "https://script.google.com/macros/s/AKfycbxdXyhmfJkrj8z4kl4h2F1po7bPQsiEC6u7FhKui39BNJLwLteu1P5kJEj4y6E_IgQg/exec";
 
     function splitCSVRow(row) {
       var result = [], cur = "", inQ = false;
@@ -804,7 +804,7 @@ document.addEventListener("DOMContentLoaded", function() {
 /* =====================
    ADMIN PANEL
    ===================== */
-var SHEETDB_URL   = "TU_URL_SHEETDB";
+var SHEETDB_URL   = "https://script.google.com/macros/s/AKfycbxdXyhmfJkrj8z4kl4h2F1po7bPQsiEC6u7FhKui39BNJLwLteu1P5kJEj4y6E_IgQg/exec";
 var ADMIN_PASS    = "buenacruz!";
 var IMG_BASE      = "https://tu-proyecto.vercel.app/";
 
