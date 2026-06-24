@@ -697,6 +697,7 @@
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
+        console.log("Cloudinary response:", JSON.stringify(data));
           if (!data || !data.secure_url) {
             showMsg("\u2715 Error al subir imagen.", false);
             btn.textContent = modoEdicion ? "Guardar cambios" : "Agregar producto"; btn.disabled = false;
