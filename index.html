@@ -666,7 +666,16 @@
           .then(function(resp) {
             if (resp && resp.updated >= 0) {
               showMsg("\u2713 Producto actualizado.", true);
-              cargarListaProductos();
+              /* Actualizar en memoria sin nuevo fetch */
+              var idx = todosLosProductos.findIndex(function(x) {
+                return String(x.producto).trim() === String(productoEditando.producto).trim();
+              });
+              if (idx !== -1) {
+                todosLosProductos[idx] = Object.assign({}, todosLosProductos[idx], rowData);
+                delete todosLosProductos[idx]._method;
+                delete todosLosProductos[idx]._target;
+              }
+              renderListado(todosLosProductos);
               setTimeout(function() { resetForm(btn); }, 1500);
             } else {
               var errMsg = resp && resp.error ? resp.error : JSON.stringify(resp);
@@ -683,7 +692,9 @@
           .then(function(resp) {
             if (resp && (resp.created || resp.created === 0)) {
               showMsg("\u2713 Producto agregado. Ya aparece en la web.", true);
-              cargarListaProductos();
+              /* Agregar en memoria sin nuevo fetch */
+              todosLosProductos.push(rowData);
+              renderListado(todosLosProductos);
               setTimeout(function() { resetForm(btn); }, 1500);
             } else {
               var errMsg = resp && resp.error ? resp.error : JSON.stringify(resp);
@@ -741,6 +752,20 @@
         });
     }
 
+    /* Sincronización manual con Google Sheets cuando sea necesario */
+    function recargarCatalogo() {
+      document.getElementById("lista-productos").innerHTML = "<p class=\"lista-empty\">Sincronizando...</p>";
+      fetch(SHEETDB_URL)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          todosLosProductos = Array.isArray(data) ? data : [];
+          renderListado(todosLosProductos);
+        })
+        .catch(function() {
+          document.getElementById("lista-productos").innerHTML = "<p class=\"lista-empty\">Error al sincronizar.</p>";
+        });
+    }
+
     function renderListado(lista) {
       var container = document.getElementById("lista-productos");
       if (!lista.length) { container.innerHTML = "<p class=\"lista-empty\">Sin resultados.</p>"; return; }
@@ -759,11 +784,17 @@
             "</div>" +
           "</div>" +
           "<div class=\"prod-item__precio\">" + precioFmt + "</div>";
-        item.addEventListener("click", function() {
-          document.querySelectorAll(".prod-item").forEach(function(el) { el.classList.remove("seleccionado"); });
-          item.classList.add("seleccionado");
-          cargarEnForm(prod);
-        });
+        (function(p) {
+          item.addEventListener("click", function() {
+            document.querySelectorAll(".prod-item").forEach(function(el) { el.classList.remove("seleccionado"); });
+            item.classList.add("seleccionado");
+            /* Usa todosLosProductos como única fuente de datos — sin fetch adicional */
+            var frescoLocal = todosLosProductos.find(function(x) {
+              return String(x.producto).trim() === String(p.producto).trim();
+            });
+            cargarEnForm(JSON.parse(JSON.stringify(frescoLocal || p)));
+          });
+        })(prod);
         container.appendChild(item);
       });
     }
@@ -819,7 +850,12 @@
           } else {
             showMsg("\u2713 Solicitud enviada.", true);
           }
-          cargarListaProductos();
+          /* Eliminar en memoria sin nuevo fetch */
+          var nombreEliminado = productoEditando ? String(productoEditando.producto).trim() : "";
+          todosLosProductos = todosLosProductos.filter(function(x) {
+            return String(x.producto).trim() !== nombreEliminado;
+          });
+          renderListado(todosLosProductos);
           resetForm(document.getElementById("adm-submit"));
         })
         .catch(function() {
