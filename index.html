@@ -759,11 +759,13 @@
             "</div>" +
           "</div>" +
           "<div class=\"prod-item__precio\">" + precioFmt + "</div>";
-        item.addEventListener("click", function() {
-          document.querySelectorAll(".prod-item").forEach(function(el) { el.classList.remove("seleccionado"); });
-          item.classList.add("seleccionado");
-          cargarEnForm(prod);
-        });
+        (function(p) {
+          item.addEventListener("click", function() {
+            document.querySelectorAll(".prod-item").forEach(function(el) { el.classList.remove("seleccionado"); });
+            item.classList.add("seleccionado");
+            cargarEnForm(JSON.parse(JSON.stringify(p)));
+          });
+        })(prod);
         container.appendChild(item);
       });
     }
