@@ -660,7 +660,6 @@
           rowData._target = productoEditando.producto;
           return fetch(SHEETDB_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(rowData)
           })
           .then(function(r) { return r.json(); })
@@ -678,7 +677,6 @@
         } else {
           return fetch(SHEETDB_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(rowData)
           })
           .then(function(r) { return r.json(); })
@@ -808,7 +806,6 @@
       btnElim.disabled = true;
       fetch(SHEETDB_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ _method: "DELETE", _target: productoEditando.producto })
       })
         .then(function(r) { return r.json(); })
