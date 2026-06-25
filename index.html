@@ -589,7 +589,7 @@
       var colEl = document.getElementById("adm-colores");    if (colEl)  colEl.value  = prod.colores    || "";
       var stoEl = document.getElementById("adm-stock");      if (stoEl)  stoEl.value  = prod.stock      || "";
       var desEl = document.getElementById("adm-descripcion"); if (desEl) desEl.value  = prod.descripcion || "";
-      var mhEl  = document.getElementById("adm-mostrar-home"); if (mhEl) mhEl.checked = prod.mostrar_home === "true";
+      var mhEl  = document.getElementById("adm-mostrar-home"); if (mhEl) mhEl.checked = String(prod.mostrar_home || "").toLowerCase().trim() === "true";
       document.getElementById("adm-imagen-file").value = "";
       document.getElementById("file-label-txt").textContent = "Opcional: cambiar imagen";
       document.getElementById("img-preview-wrap").style.display = prod.imagen_url ? "block" : "none";
@@ -759,13 +759,11 @@
             "</div>" +
           "</div>" +
           "<div class=\"prod-item__precio\">" + precioFmt + "</div>";
-        (function(p) {
-          item.addEventListener("click", function() {
-            document.querySelectorAll(".prod-item").forEach(function(el) { el.classList.remove("seleccionado"); });
-            item.classList.add("seleccionado");
-            cargarEnForm(JSON.parse(JSON.stringify(p)));
-          });
-        })(prod);
+        item.addEventListener("click", function() {
+          document.querySelectorAll(".prod-item").forEach(function(el) { el.classList.remove("seleccionado"); });
+          item.classList.add("seleccionado");
+          cargarEnForm(prod);
+        });
         container.appendChild(item);
       });
     }
