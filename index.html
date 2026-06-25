@@ -481,6 +481,11 @@
       <input type="text" id="adm-descripcion" placeholder="Descripción breve (opcional)" />
     </div>
 
+    <div class="form-group" style="display:flex;align-items:center;gap:0.6rem;">
+      <input type="checkbox" id="adm-mostrar-home" style="width:18px;height:18px;min-width:18px;accent-color:#fff;cursor:pointer;appearance:auto;-webkit-appearance:checkbox;pointer-events:auto;opacity:1;" />
+      <label for="adm-mostrar-home" style="margin:0;cursor:pointer;user-select:none;">Mostrar en Home</label>
+    </div>
+
 <hr class="divider" />
 
     <button class="btn-primary" id="adm-submit">Agregar producto</button>
@@ -559,6 +564,7 @@
       var colEl = document.getElementById("adm-colores");   if (colEl)  colEl.value  = "";
       var stoEl = document.getElementById("adm-stock");     if (stoEl)  stoEl.value  = "";
       var desEl = document.getElementById("adm-descripcion"); if (desEl) desEl.value = "";
+      var mhEl = document.getElementById("adm-mostrar-home"); if (mhEl) mhEl.checked = false;
       document.getElementById("adm-imagen-file").value = "";
       document.getElementById("file-label-txt").textContent = "Seleccionar imagen desde el dispositivo";
       document.getElementById("img-preview-wrap").style.display = "none";
@@ -583,6 +589,7 @@
       var colEl = document.getElementById("adm-colores");    if (colEl)  colEl.value  = prod.colores    || "";
       var stoEl = document.getElementById("adm-stock");      if (stoEl)  stoEl.value  = prod.stock      || "";
       var desEl = document.getElementById("adm-descripcion"); if (desEl) desEl.value  = prod.descripcion || "";
+      var mhEl  = document.getElementById("adm-mostrar-home"); if (mhEl) mhEl.checked = prod.mostrar_home === "true";
       document.getElementById("adm-imagen-file").value = "";
       document.getElementById("file-label-txt").textContent = "Opcional: cambiar imagen";
       document.getElementById("img-preview-wrap").style.display = prod.imagen_url ? "block" : "none";
@@ -617,6 +624,7 @@
       var stock       = stockEl ? stockEl.value.trim() : "0";
       var descripEl   = document.getElementById("adm-descripcion");
       var descripcion = descripEl ? descripEl.value.trim() : "";
+      var mostrarHome = document.getElementById("adm-mostrar-home") ? document.getElementById("adm-mostrar-home").checked : false;
       var imagen      = document.getElementById("adm-imagen-file").files[0];
 
       document.getElementById("adm-msg").style.display = "none";
@@ -642,7 +650,8 @@
           colores:     String(colores || ""),
           stock:       String(stock || "0"),
           descripcion: String(descripcion || ""),
-          imagen_url:  String(imageUrl || "")
+          imagen_url:   String(imageUrl || ""),
+          mostrar_home: mostrarHome ? "true" : "false"
         };
         btn.textContent = "Guardando...";
 
@@ -651,6 +660,7 @@
           rowData._target = productoEditando.producto;
           return fetch(SHEETDB_URL, {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(rowData)
           })
           .then(function(r) { return r.json(); })
@@ -668,6 +678,7 @@
         } else {
           return fetch(SHEETDB_URL, {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(rowData)
           })
           .then(function(r) { return r.json(); })
@@ -689,7 +700,7 @@
         var formData = new FormData();
         formData.append("file", imagen);
         formData.append("upload_preset", "buena-cruz");
-        fetch("https://api.cloudinary.com/v1_1/daylvhqjg/image/upload", {
+        fetch("https://api.cloudinary.com/v1_1/daylvhqig/image/upload", {
           method: "POST",
           body: formData
         })
@@ -797,6 +808,7 @@
       btnElim.disabled = true;
       fetch(SHEETDB_URL, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ _method: "DELETE", _target: productoEditando.producto })
       })
         .then(function(r) { return r.json(); })

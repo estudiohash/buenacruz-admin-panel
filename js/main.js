@@ -900,6 +900,9 @@ function adminAgregarProducto() {
     var imageUrl = data.secure_url;
     return fetch(SHEETDB_URL, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         data: [{
           producto:    String(nombre || ""),

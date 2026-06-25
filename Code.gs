@@ -1,5 +1,7 @@
 /* =====================================================
    BUENACRUZ — Google Apps Script Backend
+   Columnas: producto, precio_base, categoria, talles,
+             colores, stock, descripcion, imagen_url, mostrar_home
    ===================================================== */
 
 var SHEET_ID   = "1L1LhAPObeep6SryPlYcNfHu-xsFRRZLb";
@@ -30,15 +32,13 @@ function getAllRows() {
   return data.map(function(row) { return rowToObj(headers, row); });
 }
 
-/* ─── Respuesta JSON — CORS incluido via meta ─── */
 function makeResponse(data) {
-  var output = ContentService
+  return ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
-  return output;
 }
 
-/* ─── GET: listar productos ─── */
+/* ─── GET ─── */
 function doGet(e) {
   try {
     return makeResponse(getAllRows());
@@ -47,23 +47,20 @@ function doGet(e) {
   }
 }
 
-/* ─── POST principal ─── */
+/* ─── POST / PATCH / DELETE ─── */
 function doPost(e) {
   try {
     var body   = JSON.parse(e.postData.contents);
     var method = (body._method || "POST").toUpperCase();
-
     if (method === "POST")   return makeResponse(handlePost(body));
     if (method === "PATCH")  return makeResponse(handlePatch(body));
     if (method === "DELETE") return makeResponse(handleDelete(body));
-
     return makeResponse({ error: "Método no soportado: " + method });
   } catch(ex) {
     return makeResponse({ error: ex.message });
   }
 }
 
-/* ─── Agregar producto ─── */
 function handlePost(body) {
   var sheet   = getSheet();
   var headers = getHeaders(sheet);
@@ -74,14 +71,12 @@ function handlePost(body) {
   return { created: 1 };
 }
 
-/* ─── Editar producto ─── */
 function handlePatch(body) {
   var sheet   = getSheet();
   var headers = getHeaders(sheet);
   var lastRow = sheet.getLastRow();
   var prodIdx = headers.indexOf("producto");
   if (prodIdx === -1) return { error: "Columna 'producto' no encontrada" };
-
   var updated = 0;
   for (var i = 2; i <= lastRow; i++) {
     var cell = String(sheet.getRange(i, prodIdx + 1).getValue()).trim();
@@ -96,14 +91,12 @@ function handlePatch(body) {
   return { updated: updated };
 }
 
-/* ─── Eliminar producto ─── */
 function handleDelete(body) {
   var sheet   = getSheet();
   var headers = getHeaders(sheet);
   var lastRow = sheet.getLastRow();
   var prodIdx = headers.indexOf("producto");
   if (prodIdx === -1) return { error: "Columna 'producto' no encontrada" };
-
   var deleted = 0;
   for (var i = lastRow; i >= 2; i--) {
     var cell = String(sheet.getRange(i, prodIdx + 1).getValue()).trim();
