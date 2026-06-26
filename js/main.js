@@ -940,8 +940,8 @@ function adminAgregarProducto() {
 /* =====================
    MERCADO PAGO
    ===================== */
-const MP_PUBLIC_KEY   = "";   // ← Tu Public Key de Mercado Pago
-const MP_ACCESS_TOKEN = "";   // ← Tu Access Token de Mercado Pago
+const MP_PUBLIC_KEY   = "TEST-791423d8-3a62-41ed-82c6-2b763f573f30";   // ← Tu Public Key de Mercado Pago
+const MP_ACCESS_TOKEN = "TEST-5463011646030875-062517-b032161c47de721699b894fb9f71b559-567531317";   // ← Tu Access Token de Mercado Pago
 
 /**
  * sendMpCredentials
