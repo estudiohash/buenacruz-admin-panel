@@ -108,3 +108,56 @@ function handleDelete(body) {
   }
   return { deleted: deleted };
 }
+
+/* =====================================================
+   MERCADO PAGO — Estructura base (futura integración)
+   Las credenciales (MP_PUBLIC_KEY, MP_ACCESS_TOKEN)
+   serán enviadas por el proyecto Admin en el payload
+   de cada request. Code.gs las recibe sin conocer
+   dónde están almacenadas dentro del Admin.
+   NO hardcodear claves aquí.
+   NO utilizar PropertiesService.
+   ===================================================== */
+
+/**
+ * getMpCredentials
+ * Función destinada a recibir y validar las credenciales de Mercado Pago
+ * enviadas por el proyecto Admin en el payload del request.
+ * Code.gs recibe un objeto `credentials` sin conocer dónde fueron
+ * almacenadas dentro del Admin.
+ *
+ * @param {Object} credentials - Objeto con { publicKey, accessToken }
+ * @returns {Object} Las credenciales validadas o un objeto de error.
+ *
+ * NOTA: Implementación pendiente para la siguiente etapa de integración.
+ */
+function getMpCredentials(credentials) {
+  // TODO: implementar en la siguiente etapa
+  // Las credenciales son enviadas por el proyecto Admin vía body del request.
+  // Code.gs no depende de su ubicación interna dentro del Admin.
+  if (!credentials || !credentials.publicKey || !credentials.accessToken) {
+    return { error: "Credenciales de Mercado Pago no proporcionadas" };
+  }
+  return {
+    publicKey:   credentials.publicKey,
+    accessToken: credentials.accessToken
+  };
+}
+
+/**
+ * createMpPreference
+ * Función stub destinada a la creación de preferencias de pago en Mercado Pago.
+ * Recibirá los ítems del carrito y las credenciales enviadas por el proyecto Admin.
+ *
+ * @param {Object} body - Payload del request con { credentials, items }
+ * @returns {Object} Resultado de la operación (stub: no implementado aún).
+ *
+ * NOTA: Implementación pendiente para la siguiente etapa de integración.
+ */
+function createMpPreference(body) {
+  // TODO: implementar llamada a la API de Mercado Pago en la siguiente etapa
+  // Estructura esperada del body:
+  //   body.credentials = { publicKey, accessToken }  → enviadas por el proyecto Admin
+  //   body.items       = [ { title, quantity, unit_price }, ... ]
+  return { status: "not_implemented", message: "Pendiente de integración con Mercado Pago" };
+}

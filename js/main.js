@@ -936,3 +936,35 @@ function adminAgregarProducto() {
     btn.disabled = false;
   });
 }
+
+/* =====================
+   MERCADO PAGO
+   ===================== */
+const MP_PUBLIC_KEY   = "";   // ← Tu Public Key de Mercado Pago
+const MP_ACCESS_TOKEN = "";   // ← Tu Access Token de Mercado Pago
+
+/**
+ * sendMpCredentials
+ * Envía las credenciales de Mercado Pago al backend (Code.gs).
+ * No realiza ninguna acción adicional: solo verifica que
+ * la comunicación entre el Admin y Code.gs funcione correctamente.
+ *
+ * @returns {Promise} Respuesta del backend con { success: true } si las
+ *                    credenciales fueron recibidas correctamente.
+ */
+function sendMpCredentials() {
+  return fetch(SHEETDB_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      _method: "MP_CREDENTIALS",
+      credentials: {
+        publicKey:   MP_PUBLIC_KEY,
+        accessToken: MP_ACCESS_TOKEN
+      }
+    })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) { return data; })
+  .catch(function(err) { return { success: false, error: err.message }; });
+}
