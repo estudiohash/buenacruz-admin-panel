@@ -38,6 +38,13 @@ function makeResponse(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+/* ─── OPTIONS (CORS preflight) ─── */
+function doOptions(e) {
+  return ContentService
+    .createTextOutput("")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
 /* ─── GET ─── */
 function doGet(e) {
   try {
@@ -52,6 +59,7 @@ function doPost(e) {
   try {
     var body   = JSON.parse(e.postData.contents);
     var method = (body._method || "POST").toUpperCase();
+    if (method === "CREATE_MP_PREFERENCE") return makeResponse(createMpPreference(body));
     if (method === "POST")   return makeResponse(handlePost(body));
     if (method === "PATCH")  return makeResponse(handlePatch(body));
     if (method === "DELETE") return makeResponse(handleDelete(body));
@@ -155,9 +163,49 @@ function getMpCredentials(credentials) {
  * NOTA: Implementación pendiente para la siguiente etapa de integración.
  */
 function createMpPreference(body) {
-  // TODO: implementar llamada a la API de Mercado Pago en la siguiente etapa
-  // Estructura esperada del body:
-  //   body.credentials = { publicKey, accessToken }  → enviadas por el proyecto Admin
-  //   body.items       = [ { title, quantity, unit_price }, ... ]
-  return { status: "not_implemented", message: "Pendiente de integración con Mercado Pago" };
+  var MP_ACCESS_TOKEN = "TEST-5463011646030875-062517-b032161c47de721699b894fb9f71b559-567531317";
+
+  var items = body.items;
+  if (!items || items.length === 0) {
+    return { success: false, message: "No se recibieron productos." };
+  }
+
+  var payload = {
+    items: items.map(function(item) {
+      return {
+        title:       String(item.title),
+        quantity:    1,
+        unit_price:  Number(item.unit_price),
+        currency_id: "ARS"
+      };
+    })
+  };
+
+  var options = {
+    method:  "post",
+    contentType: "application/json",
+    headers: { "Authorization": "Bearer " + MP_ACCESS_TOKEN },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+
+  var response = UrlFetchApp.fetch(
+    "https://api.mercadopago.com/checkout/preferences",
+    options
+  );
+
+  var code = response.getResponseCode();
+  var json;
+  try { json = JSON.parse(response.getContentText()); }
+  catch(ex) { return { success: false, message: "Respuesta inválida de Mercado Pago." }; }
+
+  if (code !== 201) {
+    return { success: false, message: json.message || ("Error MP: " + code) };
+  }
+
+  return {
+    success:      true,
+    preferenceId: json.id,
+    init_point:   json.init_point
+  };
 }
