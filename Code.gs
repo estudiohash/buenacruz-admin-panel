@@ -48,6 +48,11 @@ function doOptions(e) {
 /* ─── GET ─── */
 function doGet(e) {
   try {
+    if (e && e.parameter && e.parameter.payload) {
+      var body   = JSON.parse(e.parameter.payload);
+      var method = (body._method || "").toUpperCase();
+      if (method === "CREATE_MP_PREFERENCE") return makeResponse(createMpPreference(body));
+    }
     return makeResponse(getAllRows());
   } catch(ex) {
     return makeResponse({ error: ex.message });
