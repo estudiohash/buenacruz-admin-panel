@@ -168,7 +168,7 @@ function getMpCredentials(credentials) {
  * NOTA: Implementación pendiente para la siguiente etapa de integración.
  */
 function createMpPreference(body) {
-  var MP_ACCESS_TOKEN = "TEST-5463011646030875-062517-b032161c47de721699b894fb9f71b559-567531317";
+  var MP_ACCESS_TOKEN = "APP_USR-5463011646030875-062517-9d0da023a305d6f668451e18fcdad39f-567531317";
 
   var items = body.items;
   if (!items || items.length === 0) {
