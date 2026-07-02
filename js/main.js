@@ -6,46 +6,7 @@ const EMAILJS_PUBLIC_KEY  = "";   // ← Tu Public Key
 const EMAILJS_SERVICE_ID  = "";   // ← Tu Service ID
 const EMAILJS_TEMPLATE_ID = "";   // ← Tu Template ID
 
-/* =====================
-   DATOS DE PRODUCTOS
-   precioNum = entero para calcular totales exactos
-   ===================== */
-const productos = [
-  { id:  1, nombre: "BIG CHIEF DUO 2G",      precio: "$72.500", precioNum:  72500, imgSrc: "./img/BIGCHIEFDUO2G.png",      tipo: "thc" },
-  { id:  2, nombre: "BOUTIQUE TRIPLE 2G",     precio: "$69.600", precioNum:  69600, imgSrc: "./img/BOUTIQUETRIPLE2G.png",   tipo: "thc" },
-  { id:  3, nombre: "CAPSULA BIG CHIEF 1G",   precio: "$49.300", precioNum:  49300, imgSrc: "./img/CAPSULABIGCHIEF.png",    tipo: "thc" },
-  { id:  4, nombre: "DOZO 2.5G",              precio: "$75.400", precioNum:  75400, imgSrc: "./img/DOZO25G.png",            tipo: "thc" },
-  { id:  5, nombre: "ELF THC 5.5G",           precio: "$63.800", precioNum:  63800, imgSrc: "./img/ELFTHC55G.png",          tipo: "thc" },
-  {
-    id:  6, nombre: "ELF BAR 3G",             precio: "$55.000", precioNum:  55000, imgSrc: "./img/ELFBAR3G.png",
-    tipo: "nicotina",
-    sabores: ["Mango Ice","Watermelon","Blueberry","Strawberry","Peach Ice","Grape","Lemon Mint"]
-  },
-  {
-    id:  7, nombre: "ELF BAR ICE KING 40000", precio: "$52.200", precioNum:  52200, imgSrc: "./img/ELFBARICEKING40000.png",
-    tipo: "nicotina",
-    sabores: ["Mango Ice","Watermelon Ice","Blueberry Ice","Strawberry Kiwi","Triple Mango"]
-  },
-  { id:  8, nombre: "GHOST 7G",               precio: "$75.400", precioNum:  75400, imgSrc: "./img/GHOST7G.png",            tipo: "thc" },
-  { id:  9, nombre: "HALF BAKED 3G",          precio: "$58.000", precioNum:  58000, imgSrc: "./img/HALFBAKED3G.png",        tipo: "thc" },
-  { id: 11, nombre: "JUNGLE BOYS 2G",         precio: "$60.900", precioNum:  60900, imgSrc: "./img/JUNGLEBOYS2G.png",       tipo: "thc" },
-  { id: 12, nombre: "MUHAMEDS 2G",            precio: "$66.700", precioNum:  66700, imgSrc: "./img/MUHAMEDS2G.png",         tipo: "thc" },
-  { id: 13, nombre: "PACKMAN 2G",             precio: "$63.800", precioNum:  63800, imgSrc: "./img/PACKMAN2G.png",          tipo: "thc" },
-  { id: 14, nombre: "PACKMAN DUAL 2G",        precio: "$69.600", precioNum:  69600, imgSrc: "./img/PACKMANDUAL2G.png",      tipo: "thc" },
-  { id: 15, nombre: "PEN AIRIS",              precio: "$34.800", precioNum:  34800, imgSrc: "./img/PENAIRIS.png",           tipo: "thc" },
-  {
-    id: 16, nombre: "PEN ELF",                precio: "$37.700", precioNum:  37700, imgSrc: "./img/PENELF.png",
-    tipo: "nicotina",
-    sabores: ["Mango","Blueberry","Strawberry Ice","Watermelon Ice"]
-  },
-  { id: 17, nombre: "PHENOM 8.0",             precio: "$78.300", precioNum:  78300, imgSrc: "./img/PHENOM80.png",           tipo: "thc" },
-  { id: 18, nombre: "PULSE 5G",               precio: "$69.600", precioNum:  69600, imgSrc: "./img/PULSE5G.png",            tipo: "thc" },
-  { id: 19, nombre: "SLUGGERS HITT 2G",       precio: "$78.300", precioNum:  78300, imgSrc: "./img/SLUGGERSHITT2G.png",     tipo: "thc" },
-  { id: 20, nombre: "SLUGGERS SWITCH 2G",     precio: "$78.300", precioNum:  78300, imgSrc: "./img/SLUGGERSSWITCH2G.png",   tipo: "thc" },
-  { id: 21, nombre: "TORCH 5G",               precio: "$69.600", precioNum:  69600, imgSrc: "./img/TORCH5G.png",            tipo: "thc" },
-  { id: 22, nombre: "UNIVERSITY 2G",          precio: "$60.900", precioNum:  60900, imgSrc: "./img/UNIVERSITY2G.png",       tipo: "thc" },
-  { id: 23, nombre: "VIVA LA HEMP 3.5G",      precio: "$58.000", precioNum:  58000, imgSrc: "./img/VIVALAHEMP35G.png",      tipo: "thc" }
-];
+
 
 /* =====================
    CARRITO
@@ -171,7 +132,7 @@ function filtrarYRenderizar() {
   renderizarProductos(filtrado);
 }
 function renderizarProductos(lista) {
-  var grid = document.getElementById("grid-productos");
+  var grid = document.getElementById("catalogo-grid") || document.getElementById("carruseles-container");
   if (!grid) return;
   grid.innerHTML = "";
 
@@ -492,7 +453,7 @@ function enviarPedido() {
   var provincia = document.getElementById("f-provincia").value.trim();
   var localidad = document.getElementById("f-localidad").value.trim();
   var direccion = document.getElementById("f-direccion").value.trim();
-  var sucursal  = document.getElementById("f-sucursal").value.trim();
+  var sucursal  = "";
 
   if (!nombre || !telefono || !email || !provincia || !localidad || !direccion) {
     alert("Por favor completá todos los campos obligatorios.");
@@ -541,37 +502,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
   /* ── Cargar productos desde Google Sheets (única fuente) ── */
   (function() {
-    var CSV_URL = "https://script.google.com/macros/s/AKfycbxdXyhmfJkrj8z4kl4h2F1po7bPQsiEC6u7FhKui39BNJLwLteu1P5kJEj4y6E_IgQg/exec";
+    var API_URL = "https://script.google.com/macros/s/AKfycbxdXyhmfJkrj8z4kl4h2F1po7bPQsiEC6u7FhKui39BNJLwLteu1P5kJEj4y6E_IgQg/exec";
 
-    function splitCSVRow(row) {
-      var result = [], cur = "", inQ = false;
-      for (var i = 0; i < row.length; i++) {
-        var c = row[i];
-        if (c === '"') { inQ = !inQ; }
-        else if (c === "," && !inQ) { result.push(cur); cur = ""; }
-        else { cur += c; }
-      }
-      result.push(cur);
-      return result;
-    }
-
-    function parseCSV(text) {
-      var lines = text.split(/\r?\n/).filter(function(l) { return l.trim() !== ""; });
-      var headers = splitCSVRow(lines[0]).map(function(h) { return h.trim(); });
-      var result = [];
-      for (var i = 1; i < lines.length; i++) {
-        var cols = splitCSVRow(lines[i]);
-        var obj = {};
-        headers.forEach(function(h, idx) { obj[h] = (cols[idx] || "").trim(); });
-        result.push(obj);
-      }
-      return result;
-    }
-
-    fetch(CSV_URL)
-      .then(function(r) { return r.text(); })
-      .then(function(text) {
-        var rows = parseCSV(text);
+    fetch(API_URL)
+      .then(function(r) { return r.json(); })
+      .then(function(rows) {
         var datos = rows.map(function(r, idx) {
           var num = parseFloat(String(r.precio_base || "").replace(/[^0-9.]/g, "")) || 0;
           return {
@@ -744,15 +679,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   document.getElementById("btn-enviar-pedido").addEventListener("click", enviarPedido);
 
-  /* ── Copiar wallet ── */
-  document.getElementById("btn-copy-wallet").addEventListener("click", function() {
-    var wallet = document.getElementById("wallet-addr").textContent;
-    navigator.clipboard.writeText(wallet).then(function() {
-      var btn = document.getElementById("btn-copy-wallet");
-      btn.textContent = "✓ Copiado";
-      setTimeout(function() { btn.textContent = "Copiar"; }, 2000);
-    });
-  });
+
 
   /* ── ESC: cierra cualquier overlay abierto ── */
   document.addEventListener("keydown", function(e) {
