@@ -180,6 +180,8 @@
       color: var(--text);
     }
     #adm-imagen-file { display: none; }
+    #adm-imagen-file-2 { display: none; }
+    #adm-imagen-file-3 { display: none; }
 
     /* ── Preview ── */
     #img-preview-wrap {
@@ -453,6 +455,34 @@
     </div>
 
     <div class="form-group">
+      <label>Imagen 2 <span style="color:var(--muted);font-size:0.78rem;">(opcional)</span></label>
+      <label class="file-label" for="adm-imagen-file-2">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span id="file-label-txt-2">Seleccionar imagen 2</span>
+      </label>
+      <input type="file" id="adm-imagen-file-2" accept="image/*" />
+      <div id="img-preview-wrap-2" style="display:none;margin-top:0.65rem;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <img id="img-preview-2" alt="Preview 2" style="width:100%;max-height:200px;object-fit:cover;display:block;" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Imagen 3 <span style="color:var(--muted);font-size:0.78rem;">(opcional)</span></label>
+      <label class="file-label" for="adm-imagen-file-3">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span id="file-label-txt-3">Seleccionar imagen 3</span>
+      </label>
+      <input type="file" id="adm-imagen-file-3" accept="image/*" />
+      <div id="img-preview-wrap-3" style="display:none;margin-top:0.65rem;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <img id="img-preview-3" alt="Preview 3" style="width:100%;max-height:200px;object-fit:cover;display:block;" />
+      </div>
+    </div>
+
+    <div class="form-group">
       <label>Categoría</label>
       <select id="adm-tipo">
         <option value="Indumentaria">Indumentaria</option>
@@ -534,6 +564,30 @@
       setTimeout(clearStatus, 2000);
     });
 
+    document.getElementById("adm-imagen-file-2").addEventListener("change", function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        document.getElementById("img-preview-2").src = ev.target.result;
+        document.getElementById("img-preview-wrap-2").style.display = "block";
+      };
+      reader.readAsDataURL(file);
+      document.getElementById("file-label-txt-2").textContent = file.name;
+    });
+
+    document.getElementById("adm-imagen-file-3").addEventListener("change", function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        document.getElementById("img-preview-3").src = ev.target.result;
+        document.getElementById("img-preview-wrap-3").style.display = "block";
+      };
+      reader.readAsDataURL(file);
+      document.getElementById("file-label-txt-3").textContent = file.name;
+    });
+
     /* ══════════════════════════════════════
        HELPERS UI
     ══════════════════════════════════════ */
@@ -568,6 +622,12 @@
       document.getElementById("adm-imagen-file").value = "";
       document.getElementById("file-label-txt").textContent = "Seleccionar imagen desde el dispositivo";
       document.getElementById("img-preview-wrap").style.display = "none";
+      document.getElementById("adm-imagen-file-2").value = "";
+      document.getElementById("file-label-txt-2").textContent = "Seleccionar imagen 2";
+      document.getElementById("img-preview-wrap-2").style.display = "none";
+      document.getElementById("adm-imagen-file-3").value = "";
+      document.getElementById("file-label-txt-3").textContent = "Seleccionar imagen 3";
+      document.getElementById("img-preview-wrap-3").style.display = "none";
       document.getElementById("confirmar-eliminar-wrap").classList.remove("visible");
       clearStatus();
       if (btn) { btn.textContent = "Agregar producto"; btn.disabled = false; }
@@ -594,6 +654,14 @@
       document.getElementById("file-label-txt").textContent = "Opcional: cambiar imagen";
       document.getElementById("img-preview-wrap").style.display = prod.imagen_url ? "block" : "none";
       if (prod.imagen_url) document.getElementById("img-preview").src = prod.imagen_url;
+      document.getElementById("adm-imagen-file-2").value = "";
+      document.getElementById("file-label-txt-2").textContent = prod.imagen_url_2 ? "Imagen 2 actual (subir nueva para reemplazar)" : "Seleccionar imagen 2";
+      document.getElementById("img-preview-wrap-2").style.display = prod.imagen_url_2 ? "block" : "none";
+      if (prod.imagen_url_2) document.getElementById("img-preview-2").src = prod.imagen_url_2;
+      document.getElementById("adm-imagen-file-3").value = "";
+      document.getElementById("file-label-txt-3").textContent = prod.imagen_url_3 ? "Imagen 3 actual (subir nueva para reemplazar)" : "Seleccionar imagen 3";
+      document.getElementById("img-preview-wrap-3").style.display = prod.imagen_url_3 ? "block" : "none";
+      if (prod.imagen_url_3) document.getElementById("img-preview-3").src = prod.imagen_url_3;
       document.getElementById("form-titulo").textContent = "Editar Producto";
       var banner = document.getElementById("modo-edicion-banner");
       banner.classList.remove("oculto");
@@ -626,6 +694,8 @@
       var descripcion = descripEl ? descripEl.value.trim() : "";
       var mostrarHome = document.getElementById("adm-mostrar-home") ? document.getElementById("adm-mostrar-home").checked : false;
       var imagen      = document.getElementById("adm-imagen-file").files[0];
+      var imagen2     = document.getElementById("adm-imagen-file-2").files[0];
+      var imagen3     = document.getElementById("adm-imagen-file-3").files[0];
 
       document.getElementById("adm-msg").style.display = "none";
 
@@ -637,20 +707,41 @@
         failValidation("⚠ Precio inválido. Ingresá un número mayor a 0."); return;
       }
       if (!modoEdicion && !imagen) { failValidation("⚠ Seleccioná una imagen primero."); return; }
-      if (imagen && imagen.size > 5 * 1024 * 1024) { failValidation("✕ La imagen supera los 5MB. Reducí el tamaño y volvé a intentarlo."); return; }
+      if (imagen  && imagen.size  > 5 * 1024 * 1024) { failValidation("✕ Imagen 1 supera los 5MB."); return; }
+      if (imagen2 && imagen2.size > 5 * 1024 * 1024) { failValidation("✕ Imagen 2 supera los 5MB."); return; }
+      if (imagen3 && imagen3.size > 5 * 1024 * 1024) { failValidation("✕ Imagen 3 supera los 5MB."); return; }
 
-      btn.textContent = "Subiendo imagen...";
+      btn.textContent = "Subiendo imágenes...";
 
-      function guardarEnSheetDB(imageUrl) {
+      /* Sube una imagen a Cloudinary y devuelve Promise<url|""> */
+      function subirImagen(file) {
+        if (!file) return Promise.resolve("");
+        var fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", "buena-cruz");
+        return fetch("https://api.cloudinary.com/v1_1/daylvhqjg/image/upload", {
+          method: "POST",
+          body: fd
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data || !data.secure_url) throw new Error("Sin secure_url");
+          return data.secure_url;
+        });
+      }
+
+      function guardarEnSheetDB(url1, url2, url3) {
         var rowData = {
-          producto:    String(nombre),
-          precio_base: String(Math.round(precioNum)),
-          categoria:   String(tipo),
-          talles:      String(talles || ""),
-          colores:     String(colores || ""),
-          stock:       String(stock || "0"),
-          descripcion: String(descripcion || ""),
-          imagen_url:   String(imageUrl || ""),
+          producto:     String(nombre),
+          precio_base:  String(Math.round(precioNum)),
+          categoria:    String(tipo),
+          talles:       String(talles || ""),
+          colores:      String(colores || ""),
+          stock:        String(stock || "0"),
+          descripcion:  String(descripcion || ""),
+          imagen_url:   String(url1 || ""),
+          imagen_url_2: String(url2 || ""),
+          imagen_url_3: String(url3 || ""),
           mostrar_home: mostrarHome ? "true" : "false"
         };
         btn.textContent = "Guardando...";
@@ -666,7 +757,6 @@
           .then(function(resp) {
             if (resp && resp.updated >= 0) {
               showMsg("\u2713 Producto actualizado.", true);
-              /* Actualizar en memoria sin nuevo fetch */
               var idx = todosLosProductos.findIndex(function(x) {
                 return String(x.producto).trim() === String(productoEditando.producto).trim();
               });
@@ -692,7 +782,6 @@
           .then(function(resp) {
             if (resp && (resp.created || resp.created === 0)) {
               showMsg("\u2713 Producto agregado. Ya aparece en la web.", true);
-              /* Agregar en memoria sin nuevo fetch */
               todosLosProductos.push(rowData);
               renderListado(todosLosProductos);
               setTimeout(function() { resetForm(btn); }, 1500);
@@ -705,34 +794,23 @@
         }
       }
 
-      if (imagen) {
-        var formData = new FormData();
-        formData.append("file", imagen);
-        formData.append("upload_preset", "buena-cruz");
-        fetch("https://api.cloudinary.com/v1_1/daylvhqjg/image/upload", {
-          method: "POST",
-          body: formData
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-        console.log("Cloudinary response:", JSON.stringify(data));
-          if (!data || !data.secure_url) {
-            showMsg("\u2715 Error al subir imagen.", false);
-            btn.textContent = modoEdicion ? "Guardar cambios" : "Agregar producto"; btn.disabled = false;
-            return;
-          }
-          return guardarEnSheetDB(data.secure_url);
-        })
-        .catch(function(err) {
-          showMsg("\u2715 Error al procesar. Intent\u00e1 de nuevo.", false);
-          btn.textContent = modoEdicion ? "Guardar cambios" : "Agregar producto"; btn.disabled = false;
-        });
-      } else {
-        guardarEnSheetDB(productoEditando ? productoEditando.imagen_url : "").catch(function(err) {
-          showMsg("\u2715 Error al procesar. Intent\u00e1 de nuevo.", false);
-          btn.textContent = "Guardar cambios"; btn.disabled = false;
-        });
-      }
+      /* Subir las 3 imágenes en paralelo, luego guardar */
+      var url1Actual = modoEdicion && productoEditando ? (productoEditando.imagen_url   || "") : "";
+      var url2Actual = modoEdicion && productoEditando ? (productoEditando.imagen_url_2 || "") : "";
+      var url3Actual = modoEdicion && productoEditando ? (productoEditando.imagen_url_3 || "") : "";
+
+      Promise.all([
+        imagen  ? subirImagen(imagen)  : Promise.resolve(url1Actual),
+        imagen2 ? subirImagen(imagen2) : Promise.resolve(url2Actual),
+        imagen3 ? subirImagen(imagen3) : Promise.resolve(url3Actual)
+      ])
+      .then(function(urls) {
+        return guardarEnSheetDB(urls[0], urls[1], urls[2]);
+      })
+      .catch(function() {
+        showMsg("\u2715 Error al procesar. Intent\u00e1 de nuevo.", false);
+        btn.textContent = modoEdicion ? "Guardar cambios" : "Agregar producto"; btn.disabled = false;
+      });
     });
 
     /* ══════════════════════════════════════
